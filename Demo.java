@@ -1,8 +1,11 @@
 import javax.swing.*;
+import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.DateFormat;
 import java.util.Date;
 /**
@@ -13,6 +16,8 @@ public class Demo extends JFrame
     private static final long serialVersionUID = -6249169437391023105L;
     private static DateFormat timeFormat =  DateFormat.getTimeInstance();
     private JTextArea textArea;
+    private JButton slow;
+    private JButton fast;
 
     public static void main(String[] args)
     {
@@ -38,20 +43,40 @@ public class Demo extends JFrame
         // control panel contains buttons to run slow and fast tasks
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new GridLayout(1, 2));
-        JButton fast = new JButton("fast");
+        fast = new JButton("fast");
         fast.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Demo.this.runFastTask();
+                SwingWorker<Void, Void> taskWorker = new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        Demo.this.runFastTask();
+                        return null;
+                    }
+
+                };
+                taskWorker.addPropertyChangeListener(getStateListener(fast));
+                taskWorker.execute();
             }
         });
-        JButton slow = new JButton("slow");
+        slow = new JButton("slow");
         slow.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                Demo.this.runSlowTask();
+                SwingWorker<Void, Void> taskWorker = new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        Demo.this.runSlowTask();
+                        return null;
+                    }
+
+                };
+                taskWorker.addPropertyChangeListener(getStateListener(slow));
+                taskWorker.execute();
             }
         });
         controlPanel.add(slow);
@@ -86,6 +111,39 @@ public class Demo extends JFrame
         // add(scrollpane, gridBagConstraints);
     }
 
+    private PropertyChangeListener getStateListener(final JButton button) {
+        return new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                if ("state".equals(name)) {
+                    StateValue value = (StateValue)evt.getNewValue();
+                    switch (value) {
+                    case DONE:
+                        setButton(button, true);
+                        break;
+                    case STARTED:
+                        setButton(button, false);
+                        break;
+                    default:
+                        // Do nothing for everything else
+                        break;
+                    }
+                }
+            }
+        };
+    }
+
+    private void setButton(final JButton button, final boolean enabled) {
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                button.setEnabled(enabled);
+            }
+        });
+    }
 
     private static void createAndShowGui() {
         Demo demo = new Demo();
