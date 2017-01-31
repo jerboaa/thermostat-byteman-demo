@@ -7,4 +7,6 @@ clean:
 run:
 	java -cp bin Demo
 
-.PHONY: build clean run
+all:	clean build run
+
+.PHONY: build clean run all
