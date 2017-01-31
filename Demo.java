@@ -10,11 +10,19 @@ import java.util.Date;
  */
 public class Demo extends JFrame
 {
+    private static final long serialVersionUID = -6249169437391023105L;
+    private static DateFormat timeFormat =  DateFormat.getTimeInstance();
+    private JTextArea textArea;
+
     public static void main(String[] args)
     {
-        Demo demo = new Demo();
-        demo.pack();
-        demo.setVisible(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public void run() {
+                createAndShowGui();
+            }
+        });
     }
 
     public Demo()
@@ -78,23 +86,29 @@ public class Demo extends JFrame
         // add(scrollpane, gridBagConstraints);
     }
 
-    private JTextArea textArea;
-    private static DateFormat timeFormat =  DateFormat.getTimeInstance();
+
+    private static void createAndShowGui() {
+        Demo demo = new Demo();
+        demo.pack();
+        demo.setVisible(true);
+    }
 
     private void runFastTask()
     {
         runTask(getFastTask());
     }
+
     private void runSlowTask()
     {
         runTask(getSlowTask());
     }
+
     private void runTask(Task task)
     {
         String name = task.getName();
         long start = System.currentTimeMillis();
-        textArea.append(timeFormat.format(new Date(start)));
-        textArea.append(" task " + name + " started\n");
+        appendText(timeFormat.format(new Date(start)));
+        appendText(" task " + name + " started\n");
         try {
             task.start();
             task.join();
@@ -102,9 +116,18 @@ public class Demo extends JFrame
             // do nothing
         }
         long end = System.currentTimeMillis();
-        textArea.append(timeFormat.format(new Date(end)));
-        textArea.append(" task " + name + " endeded\n");
-        textArea.append(" " + (end - start) + " msecs elapsed\n");
+        appendText(timeFormat.format(new Date(end)));
+        appendText(" task " + name + " endeded\n");
+        appendText(" " + (end - start) + " msecs elapsed\n");
+    }
+
+    private void appendText(final String text) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                textArea.append(text);
+            }
+        });
     }
 
     public Task getFastTask() {

@@ -1,8 +1,10 @@
 /**
- * Created by adinn on 17/06/16.
+ * Task class with black-box method
+ * computeIntensive().
  */
 public abstract class Task extends Thread
 {
+    @SuppressWarnings("unused")
     private volatile Long result;
 
     Task(String name)
