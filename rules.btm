@@ -1,0 +1,64 @@
+RULE create timer and counter
+CLASS Task
+METHOD <init>
+AT EXIT
+IF TRUE
+DO createTimer($this);
+   createCounter($this)
+ENDRULE
+
+RULE work started
+CLASS Task
+METHOD doWork(int)
+AT ENTRY
+HELPER org.jboss.byteman.thermostat.helper.ThermostatHelper
+BIND count = incrementCounter($0);
+     id = "work" + $0.getName() + count;
+     input = $1
+IF TRUE
+DO resetTimer($this);
+   send("work", new Object[] { "transition", "call",
+                               "input", input,
+                               "id", id });
+ENDRULE
+
+RULE work ended
+CLASS Task
+METHOD doWork(int)
+AT EXIT
+HELPER org.jboss.byteman.thermostat.helper.ThermostatHelper
+BIND count = readCounter($0);
+     id = "work" + $0.getName() + count;
+     elapsed = getElapsedTimeFromTimer($0);
+IF TRUE
+DO send("work", new Object[] {"transition", "return",
+                              "elapsed", elapsed,
+                              "id", id});
+ENDRULE
+
+RULE iowait started
+CLASS Task
+METHOD ioWait
+AT ENTRY
+HELPER org.jboss.byteman.thermostat.helper.ThermostatHelper
+BIND count = readCounter($0);
+     id = "wait" + $0.getName() + count;
+IF TRUE
+DO resetTimer($0);
+   send("wait", new Object[] {"transition", "call",
+                               "id", id });
+ENDRULE
+
+RULE iowait ended
+CLASS Task
+METHOD ioWait
+AT EXIT
+HELPER org.jboss.byteman.thermostat.helper.ThermostatHelper
+BIND count = readCounter($0);
+     id = "wait" + $0.getName() + count;
+     elapsed = getElapsedTimeFromTimer($0);
+IF TRUE
+DO send("wait", new Object[] {"transition", "return",
+                              "elapsed", elapsed,
+                               "id", id });
+ENDRULE
