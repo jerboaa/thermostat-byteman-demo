@@ -7,10 +7,10 @@ In order to compile and run this demo application use:
     $ make
     $ make run
 
-This will pop up a window where "slow and "fast" tasks
+This will pop up a window where "slow" and "fast" tasks
 can be run.
 
-*IMPORTANT*
+**IMPORTANT**
 
 Note that compiling class `Demo` with the `-g` switch is important for
 certain instructions in the Byteman rules file to work.
