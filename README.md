@@ -138,3 +138,9 @@ Click `Generate Graph`. This shows that each call to `ioWait()` took
 a constant amount of time. About 500 miliseconds.
 
 ![Bar chart wait (elapsed)](screenshots/elapsed_wait.png)
+
+### Screencast
+
+A [screencast](https://jerboaa.fedorapeople.org/presentations/thermostat_byteman_demo_20170202.ogv)
+showing some of the functionality in action is available too. **NOTE:**
+This screencast does not have audio.
